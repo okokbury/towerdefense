@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <conio.h>
 
-consoleClear(){
-    printf("\e[1;1H\e[2J");
-}
 
 int main(){
 
@@ -20,34 +17,41 @@ char mapaI[10][10] = {
         {'8', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
         {'9', '/', '/', '/', '/', '/', '/', '/', '/', 'B'}  
     };
-int opcao, vida, money, nivel;
-char continuar;
+int vida, money, nivel;
+char continuar = 's';
+char opcao;
 
-consoleClear();
+system("cls");
 
 //Inicio do jogo
-//Letreiro
-printf("     |xxxxxxxxxxx| |wwwwwwx| |xxx| |xxx| |xxxxx| |xxxxxx|\n");       
-printf("     |           | |       | |   |x|   | |     | |  xxxx|\n");       
-printf("     |xxx|   |xxx| |  xxx  | |   | |   | | xxxx| |  |    \n");       
-printf("         |   |     |  x x  | |   | |   | |    |  |  |    \n");       
-printf("         |   |     |  xxx  | |         | | xxxx| |  |    \n");       
-printf("         |   |     |       | |         | |     | |  |    \n");       
-printf("         |xxx|     |xxxxxxx| |xxxxxxxxx| |xxxxx| |xx|    \n\n");     
-                                                                             
-printf("|xxxxx|  |xxxxxx| |xxxxxx| |xxxxxx| |xxxx|x| |xxxxxx| |xxxxxx|\n");  
-printf("|     || |      | |      | |      | |    | | |      | |      |\n");  
-printf("| xxx  | | xxxxx| | xxxxx| | xxxxx| |    | | |  xxxx| | xxxxx|\n");  
-printf("| x x  | |    |   |     |  |    |   | |  | | |      | |    |  \n");  
-printf("| xxx  | | xxxxx| | xxxx|  | xxxxx| | |    | |xxxxx | | xxxxx|\n");  
-printf("|      | |      | | |      |      | | |    | |      | |      |\n");  
-printf("|     || |      | | |      |      | | |    | |      | |      |\n");
-printf("|XXXXX|  |XXXXXX| |X|      |XXXXXX| |X|XXXX| |XXXXXX| |XXXXXX|\n\n");
-printf("                      Press any key to start!                     ");      
+//Letreiro                                                                                      
+printf("                                                                                               \n");  
+printf("                       ------------------------------------------------------------------------\n");  
+printf("                       |                                                                      |\n");  
+printf("                       |         |xxxxxxxxxxx| |xxxxxxx| |xxx| |xxx| |xxxxx| |xxxxxx|         |\n");  
+printf("                       |         |           | |       | |   |x|   | |     | |  xxxx|         |\n");  
+printf("                       |         |xxx|   |xxx| |  xxx  | |   | |   | | xxxx| |  |             |\n");  
+printf("                       |             |   |     |  x x  | |   | |   | |    |  |  |             |\n");  
+printf("                       |             |   |     |  xxx  | |         | | xxxx| |  |             |\n");  
+printf("                       |             |   |     |       | |         | |     | |  |             |\n");  
+printf("                       |             |xxx|     |xxxxxxx| |xxxxxxxxx| |xxxxx| |xx|             |\n");  
+printf("                       |                                                                      |\n");  
+printf("                       |    |xxxxx|  |xxxxxx| |xxxxxx| |xxxxxx| |xxxx|x| |xxxxxx| |xxxxxx|    |\n");  
+printf("                       |    |     || |      | |      | |      | |    | | |      | |      |    |\n");  
+printf("                       |    | xxx  | | xxxxx| | xxxxx| | xxxxx| |    | | |  xxxx| | xxxxx|    |\n");  
+printf("                       |    | x x  | |    |   |     |  |    |   | |  | | |      | |    |      |\n");  
+printf("                       |    | xxx  | | xxxxx| | xxxx|  | xxxxx| | |    | |xxxxx | | xxxxx|    |\n");  
+printf("                       |    |      | |      | | |      |      | | |    | |      | |      |    |\n");  
+printf("                       |    |     || |      | | |      |      | | |    | |      | |      |    |\n");  
+printf("                       |    |XXXXX|  |XXXXXX| |X|      |XXXXXX| |X|XXXX| |XXXXXX| |XXXXXX|    |\n");  
+printf("                       |                      Press any key to start!                         |\n");  
+printf("                       |                                                                      |\n");  
+printf("                       ------------------------------------------------------------------------\n\n");     
 getch();
 
-while(continuar == 's')
-consoleClear();
+//while(continuar == 's'){}
+
+system("cls");
 
 //imprimindo o mapa base
 for(int i=0;i<10;i++){
@@ -57,16 +61,16 @@ for(int i=0;i<10;i++){
     }
 }
 
-printf("\nVida da base: %d | Dinheiro: %d | Nivel: %d", vida, money, nivel);
-printf("O que deseja fazer? \n1 - Colocar torre. \n2 - Comecar wave. \n3 - Sair do jogo.");
-scanf("%d", &opcao);
+printf("\n\nVida da base: %d | Dinheiro: %d | Nivel: %d", vida, money, nivel);
+printf("\n\nO que deseja fazer? \n1 - Colocar torre. \n2 - Comecar wave. \n3 - Sair.\n");
+opcao = getch();
 
 switch(opcao){
     //Coloca a torre
-    case 1: 
+    case '1': 
     char columnSel;
     int rowSelNum,columnSelNum;
-    printf("Qual posicao voce quer colocar a torre? (EX:A 1\n");
+    printf("Qual posicao voce quer colocar a torre? (EX:A 1)\n");
     scanf(" %c %d", &columnSel, &rowSelNum);
 
     //verifica se a coluna ta certa.
@@ -75,6 +79,7 @@ switch(opcao){
         break;
     }
 
+    //troca a letra pelo numero da coluna
     switch(columnSel){
         case 'A':
         columnSelNum = 1; 
@@ -110,12 +115,13 @@ switch(opcao){
         printf("Posicao esta na rota do inimigo. Por favor escolha outra posicao.");
     }
     
-    printf("Colocando a torre na coluna");
+    //confirmando onde o usuario escolheu
+    printf("Colocando a torre na coluna %c, linha %d", columnSel, rowSelNum);
     
     break;
-    case 2:
+    case '2':
     break;
-    case 3:
+    case '3':
     break;
 }
 
