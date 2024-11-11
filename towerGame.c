@@ -304,14 +304,14 @@ while(continuar == 's'){
                     int y = rota[i].y;
                     if (mapaI[x][y] == ' ') { //marcando o caminho q o inimigo vai passar
                         mapaI[x][y] = 'B';
-                        inimigo.x = x
-                        inimigo.y = y
+                        inimigo.x = x;
+                        inimigo.y = y;
                     }
                 }
             }
             if(inimigo.x == 9 && inimigo.y == 9) {
-                gotoxy(0, 20)
-                printf("O inimigo atingiu a sua base, voce recebeu %d de dano!", danoInimigo)
+                gotoxy(0, 20);
+                printf("O inimigo atingiu a sua base, voce recebeu %d de dano!", danoInimigo);
             }
         }
 
