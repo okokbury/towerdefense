@@ -2,7 +2,96 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <windows.h>
+#include <time.h>
 
+//globais 
+#define TAM_MAPA 10
+#define MAX_INIMIGOS 5
+#define TAM_MAX_ROTA 20
+char mapaI[TAM_MAPA][TAM_MAPA] = {
+        {' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'},
+        {'1', '/', '/', '/', '/', '/', '/', '/', '/', '/'},
+        {'2', '/', '/', '/', '/', '/', '/', '/', '/', '/'},
+        {'3', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
+        {'4', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
+        {'5', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
+        {'6', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
+        {'7', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
+        {'8', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
+        {'9', '/', '/', '/', '/', '/', '/', '/', '/', 'B'}  
+    };
+
+//struct do inimigo p ter a vida e as coordenadas do bicho
+typedef struct {
+    int x;
+    int y;
+    int vida;
+} Inimigo;
+typedef struct {
+    int x;
+    int y;
+} PontoRota;
+
+//funcao pra fazer a rota entre a primeira casa ate a base
+void gerarRota(PontoRota* rota, int* tamanhoRota) {
+    int x = 1, y = 1;
+    int xFinal = 9, yFinal = 9; 
+    int i = 0;
+
+    srand(time(NULL));
+
+    while (x != xFinal || y != yFinal) {
+        rota[i].x = x;
+        rota[i].y = y;
+        i++;
+
+        // decide p que lado mexe
+        int direcao = rand() % 2;
+
+        //mexe na horizontal aleatoriamente
+        if (direcao == 0 && x != xFinal) {
+            if (x < xFinal) {
+                x++;
+            } else {
+                x--;
+            }
+        }
+        // Movimento vertical, verifica se y ainda não atingiu o limite
+        else if (direcao == 1 && y != yFinal) {
+            if (y < yFinal) {
+                y++;
+            } else {
+                y--;
+            }
+        }
+    }
+
+    // Marca o ponto final da rota
+    rota[i].x = xFinal;
+    rota[i].y = yFinal;
+    *tamanhoRota = i + 1;
+}
+
+void desenharRota(char mapaI[TAM_MAPA][TAM_MAPA], PontoRota* rota, int tamanhoRota) {
+    for (int i = 0; i < tamanhoRota; i++) {
+        int x = rota[i].x;
+        int y = rota[i].y;
+        if (mapaI[x][y] == '/') { //marcando o caminho q o inimigo vai passar
+            mapaI[x][y] = ' ';
+        }
+    }
+}
+
+//funcao pra mexer o bicho
+void moverInimigo(Inimigo* inimigo) {
+    }
+
+//checar se ta livre o caminho
+int posicaoLivre(int x, int y){
+    return (x >= 0 && x < TAM_MAPA && y >= 0 && y < TAM_MAPA && mapaI[x][y] != 'T' && mapaI[x][y] != 'B');
+}
+
+//funcao pra limpar o console win e linux
 void limparConsole() {
     #ifdef _WIN32
         system("cls");
@@ -11,6 +100,7 @@ void limparConsole() {
     #endif
 }
 
+//funcao pra colocar a msg em tal posicao win e linux
 void gotoxy(int x, int y) {
     #ifdef _WIN32
         COORD coord;
@@ -23,6 +113,7 @@ void gotoxy(int x, int y) {
     #endif
 }
 
+//funcao pra mostrar a tela inicial, fiz em funcao so pra ficar mais organizado
 void letreiroPrint(){                                                                            
 printf("                                                                                               \n");  
 printf("                       ------------------------------------------------------------------------\n");  
@@ -50,28 +141,21 @@ printf("                       -------------------------------------------------
 
 int main(){
 
-char mapaI[10][10] = {
-        {' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'},
-        {'1', '/', '/', '/', '/', '/', '/', '/', '/', '/'},
-        {'2', '/', '/', '/', '/', '/', '/', '/', '/', '/'},
-        {'3', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
-        {'4', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
-        {'5', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
-        {'6', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
-        {'7', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
-        {'8', '/', '/', '/', '/', '/', '/', '/', '/', '/'}, 
-        {'9', '/', '/', '/', '/', '/', '/', '/', '/', 'B'}  
-    };
-int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre;
+//Variaveis
+int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre, tamanhoRota, round;
 char opcao;
 char continuar = 's';
+PontoRota rota[TAM_MAX_ROTA];
 
 //definicoes padrao:
 vidaPlayer = 100;
 moneyPlayer = 50;
 nivelPlayer = 1;
 valorTorre = 25;
+round = 1;
 
+
+//Deixa o console limpo pra iniciar
 limparConsole();
 
 //Inicio do jogo
@@ -100,42 +184,43 @@ limparConsole();
 //printf("                       ------------------------------------------------------------------------\n\n");
 letreiroPrint();
 getch();
-
 limparConsole();
+//usa a funcao da rota pra gerar a rota, no towerdefense so gera 1 vez a rota.
+gerarRota(rota, &tamanhoRota);
+desenharRota(mapaI, rota, tamanhoRota);
 
+//inicio das funcoes do jogo
 while(continuar == 's'){
     gotoxy(0, 0);
-    //imprimindo o mapa base
+    
+    //imprimindo o mapa
     for(int i=0;i<10;i++){
         printf("\n");
         for(int j=0;j<10;j++){
                 printf("%c ", mapaI[i][j]);
         }
     }
+    
 
     printf("\n\nBase HP: %d | Money: %d | Round: %d", vidaPlayer, moneyPlayer, nivelPlayer);
+    printf("\nTower price: %d", valorTorre);
     printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Quit.\n");
     opcao = getch();
+
 
     //ve se o usuario apertou o botao de opcao certo
     if(opcao == '1' || opcao == '2' || opcao == '3'){ 
     switch(opcao){
     case '1':
     //Coloca a torre
-    
-        //faz a modificacao do valor da torre referente ao round q a pessoa ta
-        if(nivelPlayer == 1){
-            valorTorre = 25;
-        }
-        else {
-            valorTorre = valorTorre*(nivelPlayer*0,60);
-        }
-     
+
+
+        //ve se o usuario tem dinheiro p colocar a torre
         if (moneyPlayer >= valorTorre){
             char columnSel;
             int rowSelNum,columnSelNum;
             gotoxy(0, 19);
-            printf("Which position do you want to place the tower? (EX:A 1)\n");
+            printf("Which position do you want to place the tower? (EX:A 1)         \n");
             scanf(" %c %d", &columnSel, &rowSelNum);
 
             //troca a letra pelo numero da coluna
@@ -165,12 +250,14 @@ while(continuar == 's'){
                 printf("This position is in the enemy route. Please pick another one.");
                 break;
             }
+            //ve se o usuario ta colocando a torre em cima da base
             else if (mapaI[rowSelNum][columnSelNum] == 'B'){
                 limparConsole();
                 gotoxy(0, 19);
                 printf("You cannot place a tower here because your base is in this position.\n");
                 break;
             }
+            //se todas verificacoes tiverem certas ele coloca a torre
             else {
                 // Colocar a torre
                 limparConsole();
@@ -183,18 +270,21 @@ while(continuar == 's'){
         else {
             limparConsole();
             gotoxy(0, 19);
-            printf("Tower price is %d\n", valorTorre);
             printf("You are out of founds.\n");
         }
         break;
 
     case '2':
-    //Comecar a wave, aqui vai demorar
+    //Comeca a wave, aqui vai demorar
+
+        //faz a modificacao do valor da torre referente ao round q a pessoa ta
+        valorTorre = 40*(nivelPlayer*0.7);
         nivelPlayer++;
     break;
 
     case '3':
-    //Sair  
+    //Sair do jogo
+
         continuar = 'n';
         limparConsole();
         //Letreiro de saida
@@ -211,7 +301,8 @@ while(continuar == 's'){
         break;
     }
     } 
-    //informa q ele selecionou o botao errado
+
+    //informa q ele apertou o botao errado ou de nenhuma funcao
     else {
         limparConsole();
         gotoxy(0, 19);
