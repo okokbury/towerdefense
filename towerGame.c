@@ -214,7 +214,8 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
 int main(){
 
 //Variaveis
-int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre, valorPagoTorre, valorUpgrade, tamanhoRota, ganhoRound, perdeu, ganhou;
+int vidaPlayer, nivelPlayer, valorTorre, valorPagoTorre, valorUpgrade, tamanhoRota, ganhoRound, perdeu, ganhou;
+float moneyPlayer;
 int vidaRound, danoInimigo, maxTorres, ultimaTorreColocada, inimigoNoMapa;
 int mapaTorres[9][9] = {0};
 char opcao;
@@ -277,7 +278,7 @@ while(vidaPlayer > 0 && continuar == 's'){
     gotoxy(0, 0);
     printMapa();
     
-    printf("\n\nBase HP: %d | Money: %d | Round: %d", vidaPlayer, moneyPlayer, nivelPlayer);
+    printf("\n\nBase HP: %d | Money: %0.f | Round: %d", vidaPlayer, moneyPlayer, nivelPlayer);
     printf("\nTower price: %d", valorTorre);
     printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Upgrade a tower. \n4 - Quit.\n\n");
     opcao = getch();
@@ -333,6 +334,13 @@ while(vidaPlayer > 0 && continuar == 's'){
                 limparConsoleRestosMenos();
                 gotoxy(0, 20);
                 printf("You cannot place a tower here because your base is in this position.\n");
+                break;
+            }
+            else if (mapaI[rowSelNum][columnSelNum] == 't' || mapaI[rowSelNum][columnSelNum] == 'T' ){
+                limparConsole();
+                limparConsoleRestosMenos();
+                gotoxy(0, 20);
+                printf("You cannot place a tower here because there is already a tower here.\n");
                 break;
             }
             //se todas verificacoes tiverem certas ele coloca a torre
@@ -535,7 +543,7 @@ while(vidaPlayer > 0 && continuar == 's'){
         gotoxy(23, 19);
         printf("|                          Obrigado por jogar                          |");
         gotoxy(23, 20);
-        printf("|                      Sua pontuacao foi de %d                       ", nivelPlayer*moneyPlayer*1500); 
+        printf("|                      Sua pontuacao foi de %0.f                       ", moneyPlayer*(nivelPlayer*1500));
         gotoxy(94, 20);
         printf("|");
         gotoxy(23, 21);
@@ -564,7 +572,7 @@ while(vidaPlayer > 0 && continuar == 's'){
         gotoxy(23, 19);
         printf("|                            Voce perdeu :(                            |\n");
         gotoxy(23, 20);
-        printf("|                      Sua pontuacao foi de %d                       ", nivelPlayer*moneyPlayer*1500); 
+        printf("|                      Sua pontuacao foi de %0.f                       ", moneyPlayer*(nivelPlayer*1500)); 
         gotoxy(94, 20);
         printf("|");
         gotoxy(23, 21);
