@@ -3,6 +3,8 @@
 #include <conio.h>
 #include <windows.h>
 #include <time.h>
+#include <math.h>
+#include <stdbool.h>
 
 //globais 
 #define TAM_MAPA 10
@@ -40,6 +42,8 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
         int x;
         int y;
         int danoTorre;
+        int alcance;
+        int valorPagoTorre;
     } Torre;
     
     //funcao de delay
@@ -91,7 +95,6 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
         *tamanhoRota = i + 1;
     }
 
-    
     //funcao pra criar rota
     void desenharRota(char mapaI[TAM_MAPA][TAM_MAPA], PontoRota* rota, int tamanhoRota) {
         for (int i = 0; i < tamanhoRota; i++) {
@@ -112,13 +115,6 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
         }
     }
 
-    //fazer a funcao p verificar se o inimigo esta na rota e bater ai acrescentar no loop la da fita
-
-    //checar se ta livre o caminho
-    int posicaoLivre(int x, int y){
-        return (x >= 0 && x < TAM_MAPA && y >= 0 && y < TAM_MAPA && mapaI[x][y] != 'T' && mapaI[x][y] != 'B');
-    }
-
     //funcao pra limpar o console win e linux
     void limparConsole() {
     #ifdef _WIN32
@@ -128,6 +124,44 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
     #endif
 }
 
+    void limparConsoleRestosMais(){
+        gotoxy(0, 11);
+        printf("                                                                               \n");
+        gotoxy(0, 12);
+        printf("                                                                               \n");
+        gotoxy(0, 13);
+        printf("                                                                               \n");
+        gotoxy(0, 14);
+        printf("                                                                               \n");
+        gotoxy(0, 15);
+        printf("                                                                               \n");
+        gotoxy(0, 16);
+        printf("                                                                               \n");
+        gotoxy(0, 17);
+        printf("                                                                               \n");
+        gotoxy(0, 18);
+        printf("                                                                               \n");
+        gotoxy(0, 19);
+        printf("                                                                               \n");
+        gotoxy(0, 20);
+        printf("                                                                               \n");
+        gotoxy(0, 21);
+        printf("                                                                               \n");
+        gotoxy(0, 22);
+        printf("                                                                               \n");
+        gotoxy(0, 23);
+        printf("                                                                               \n");
+    }
+    void limparConsoleRestosMenos(){
+        gotoxy(0, 20);
+        printf("                                                                               \n");
+        gotoxy(0, 21);
+        printf("                                                                               \n");
+        gotoxy(0, 22);
+        printf("                                                                               \n");
+        gotoxy(0, 23);
+        printf("                                                                               \n");
+    }
     //funcao pra colocar a msg em tal posicao win e linux
     void gotoxy(int x, int y) {
     #ifdef _WIN32
@@ -180,8 +214,9 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
 int main(){
 
 //Variaveis
-int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre, tamanhoRota, ganhoRound;
-int vidaRound, danoInimigo, maxTorres;
+int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre, valorPagoTorre, valorUpgrade, tamanhoRota, ganhoRound, perdeu, ganhou;
+int vidaRound, danoInimigo, maxTorres, ultimaTorreColocada, inimigoNoMapa;
+int mapaTorres[9][9]={0};
 char opcao;
 char continuar = 's';
 
@@ -194,9 +229,12 @@ vidaPlayer = 10;
 moneyPlayer = 50;
 nivelPlayer = 1;
 valorTorre = 25;
+valorUpgrade = valorPagoTorre*2;
 ganhoRound = 50;
 vidaRound = 5;
-
+ultimaTorreColocada = -1;
+inimigoNoMapa = 0;
+perdeu = 0;
 
 //Deixa o console limpo pra iniciar
 limparConsole();
@@ -241,7 +279,7 @@ while(vidaPlayer > 0 && continuar == 's'){
     
     printf("\n\nBase HP: %d | Money: %d | Round: %d", vidaPlayer, moneyPlayer, nivelPlayer);
     printf("\nTower price: %d", valorTorre);
-    printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Upgrade a tower. \n4 - Quit.\n");
+    printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Upgrade a tower. \n4 - Quit.\n\n");
     opcao = getch();
 
 
@@ -255,7 +293,8 @@ while(vidaPlayer > 0 && continuar == 's'){
     if (moneyPlayer >= valorTorre){
             char columnSel;
             int rowSelNum,columnSelNum;
-            gotoxy(0, 20);
+            limparConsoleRestosMais();
+            gotoxy(0, 12);
             printf("Which position do you want to place the tower? (EX:A 1)         \n");
             scanf(" %c %d", &columnSel, &rowSelNum);
 
@@ -275,6 +314,7 @@ while(vidaPlayer > 0 && continuar == 's'){
             //verifica se a coluna ta certa.
             if (columnSel !=  mapaI[0][1] && columnSel !=  mapaI[0][2] && columnSel !=  mapaI[0][3] && columnSel !=  mapaI[0][4] && columnSel !=  mapaI[0][5] && columnSel !=  mapaI[0][6] && columnSel !=  mapaI[0][7] && columnSel !=  mapaI[0][8] && columnSel !=  mapaI[0][9]){
                 limparConsole();
+                limparConsoleRestosMenos();
                 gotoxy(0, 20);
                 printf("Invalid position.");
                 break;
@@ -282,6 +322,7 @@ while(vidaPlayer > 0 && continuar == 's'){
             //verifica se ta na rota do inimigo
             if (mapaI[rowSelNum][columnSelNum] == ' '){
                 limparConsole();
+                limparConsoleRestosMenos();
                 gotoxy(0, 20);
                 printf("This position is in the enemy route. Please pick another one.");
                 break;
@@ -289,6 +330,7 @@ while(vidaPlayer > 0 && continuar == 's'){
             //ve se o usuario ta colocando a torre em cima da base
             else if (mapaI[rowSelNum][columnSelNum] == 'B'){
                 limparConsole();
+                limparConsoleRestosMenos();
                 gotoxy(0, 20);
                 printf("You cannot place a tower here because your base is in this position.\n");
                 break;
@@ -297,8 +339,16 @@ while(vidaPlayer > 0 && continuar == 's'){
             else {
                 // Colocar a torre
                 limparConsole();
+                limparConsoleRestosMenos();
                 gotoxy(0, 20);
-                mapaI[rowSelNum][columnSelNum] = 'T'; 
+                ultimaTorreColocada++;
+                mapaI[rowSelNum][columnSelNum] = 't'; 
+                torre[ultimaTorreColocada].danoTorre = 5;
+                torre[ultimaTorreColocada].x = rowSelNum;
+                torre[ultimaTorreColocada].y = columnSelNum;
+                torre[ultimaTorreColocada].alcance = 1;
+                torre[ultimaTorreColocada].valorPagoTorre = valorTorre;
+                mapaTorres[rowSelNum][columnSelNum] = ultimaTorreColocada;
                 moneyPlayer = moneyPlayer - valorTorre;
                 printf("Tower positioned in column %c, row %d\n", columnSel, rowSelNum);
             }
@@ -337,36 +387,120 @@ while(vidaPlayer > 0 && continuar == 's'){
                             inimigo->x = i;
                             inimigo->y = j;
                             
-                            
-
                             limparConsole();
                             printMapa();
-                            delay(333);
+                            //bater no enemego
+                            gotoxy(0, 12);
+                            printf("Vida atual do inimigo %d", inimigo->vida);
+
+                            for(int k = 0; k <= ultimaTorreColocada; k++ ) {
+                                if ((torre[k].x - inimigo->x) <= torre[k].alcance && (torre[k].y - inimigo->y) <= torre[k].alcance) {
+                                    inimigo->vida = inimigo->vida - torre[k].danoTorre;
+                                    
+                                    if (inimigo->vida <= 0) {
+                                        i = j = TAM_MAPA;
+                                        mapaI[inimigo->x][inimigo->y] = ' ';
+                                        inimigo->x = inimigo->y = 11;
+                                        limparConsoleRestosMenos();
+                                        gotoxy(0, 21);
+                                        printf("\nYou won wave number: %d", nivelPlayer);
+                                    }
+                                }
+                            }
+                            delay(400);
                         }
                     }
             if(inimigo->x == 9 && inimigo->y == 9) {
                 mapaI[inimigo->x][inimigo->y] = 'B';
                 gotoxy(0, 21);
                 vidaPlayer = vidaPlayer - danoInimigo;
-                printf("The enemy hit your base, you received %d points of damage!", danoInimigo);
+                if(vidaPlayer <= 0) perdeu = perdeu + 1;
+                printf("\nThe enemy hit your base, you received %d points of damage!                 ", danoInimigo);
                 inimigo->vida = 0;
             }
         }
         }
         }
-
-
         //faz a modificacao do valor da torre referente ao round q a pessoa ta
         valorTorre = 40*nivelPlayer;
         ganhoRound = 50*(nivelPlayer*0.5);
         gotoxy(0, 20);
-        printf("Money earned in this wave %d", ganhoRound);
+        printf("\nMoney earned in this wave %d", ganhoRound);
         moneyPlayer = moneyPlayer + ganhoRound;
         nivelPlayer++;
     break;
     case '3':
-    //upgrade da torre
-    printf("Upgrade sendo feito... ");
+    //upgrade da torre peco perdao pq aqui eu ja parei de comentar tava maluco
+        if(moneyPlayer > 0){
+        char columnSel;
+        int rowSelNum,columnSelNum, torreMexendo;
+        limparConsoleRestosMais();
+        gotoxy(0, 12);
+        printf("Which position do you want to place the tower? (EX:A 1)         \n");
+        scanf(" %c %d", &columnSel, &rowSelNum);
+
+        //troca a letra pelo numero da coluna
+        switch(columnSel){
+            case 'A': columnSelNum = 1; break;
+            case 'B': columnSelNum = 2; break;
+            case 'C': columnSelNum = 3; break;
+            case 'D': columnSelNum = 4; break;
+            case 'E': columnSelNum = 5; break;                    
+            case 'F': columnSelNum = 6; break;
+            case 'G': columnSelNum = 7; break;
+            case 'H': columnSelNum = 8; break;
+            case 'I': columnSelNum = 9; break;
+        }
+
+            //verifica se a coluna ta certa.
+            if (columnSel !=  mapaI[0][1] && columnSel !=  mapaI[0][2] && columnSel !=  mapaI[0][3] && columnSel !=  mapaI[0][4] && columnSel !=  mapaI[0][5] && columnSel !=  mapaI[0][6] && columnSel !=  mapaI[0][7] && columnSel !=  mapaI[0][8] && columnSel !=  mapaI[0][9]){
+                limparConsole();
+                limparConsoleRestosMenos();
+                gotoxy(0, 20);
+                printf("Invalid position.");
+                break;
+            }
+            if (mapaI[rowSelNum][columnSelNum] != 't' && mapaI[rowSelNum][columnSelNum] != 'T'){
+                limparConsole();
+                limparConsoleRestosMenos();
+                gotoxy(0, 20);
+                printf("There is no tower in this position.");
+                break;
+            }
+            if (mapaI[rowSelNum][columnSelNum] == 'T'){
+                limparConsole();
+                limparConsoleRestosMenos();
+                gotoxy(0, 20);
+                printf("You already have upgraded tower in this position.");
+                break;
+            } 
+            if(moneyPlayer < valorUpgrade){
+                limparConsole();
+                limparConsoleRestosMenos();
+                gotoxy(0, 20);
+                printf("You don't have enough money.");
+                break;
+            }
+            else{
+                // Upgrade da torre
+                
+                valorUpgrade = torre[torreMexendo].valorPagoTorre*2;
+                mapaTorres[rowSelNum][columnSelNum] = torreMexendo;
+                torre[torreMexendo].alcance = 2;
+                torre[torreMexendo].danoTorre = torre[torreMexendo].danoTorre*2;
+                mapaI[rowSelNum][columnSelNum] = 'T';
+                moneyPlayer = moneyPlayer - valorTorre;
+                limparConsoleRestosMais();
+                gotoxy(0, 13);
+                printf("Tower upgraded successfully. You now have %d money.", moneyPlayer);
+                delay(2000);
+            }
+        }
+        else{
+            limparConsoleRestosMenos();
+            gotoxy(0, 20);
+            printf("You dont have any money. YOU ARE BROKE");
+        }
     break;
     case '4':
     //Sair do jogo
@@ -378,8 +512,10 @@ while(vidaPlayer > 0 && continuar == 's'){
         letreiroPrint();
         gotoxy(23, 19);
         printf("|                          Obrigado por jogar                          |");
-        gotoxy(23, 20);
-        printf("|                                                                      |\n"); 
+        printf("|                      Sua pontuacao foi de %d                       ", nivelPlayer*moneyPlayer*1500); 
+        gotoxy(94, 20);
+        printf("|");
+        gotoxy(23, 21); 
         gotoxy(23, 21);
         printf("------------------------------------------------------------------------\n\n");
         getch();
@@ -395,7 +531,7 @@ while(vidaPlayer > 0 && continuar == 's'){
         printf("Invalid option.");
         printf("%c", opcao);
     }
-}
+}   if(perdeu == 1){
         limparConsole();
         //Letreiro de saida
         gotoxy(0,0);
@@ -412,4 +548,5 @@ while(vidaPlayer > 0 && continuar == 's'){
         printf("------------------------------------------------------------------------\n\n");
         getch();
         system("exit");
- }
+        }
+}
