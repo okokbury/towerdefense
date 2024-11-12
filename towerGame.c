@@ -216,7 +216,7 @@ int main(){
 //Variaveis
 int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre, valorPagoTorre, valorUpgrade, tamanhoRota, ganhoRound, perdeu, ganhou;
 int vidaRound, danoInimigo, maxTorres, ultimaTorreColocada, inimigoNoMapa;
-int mapaTorres[9][9]={0};
+int mapaTorres[9][9] = {0};
 char opcao;
 char continuar = 's';
 
@@ -284,7 +284,7 @@ while(vidaPlayer > 0 && continuar == 's'){
 
 
     //ve se o usuario apertou o botao de opcao certo
-    if(opcao == '1' || opcao == '2' || opcao == '3' || opcao == '4'){ 
+    if(opcao == '1' || opcao == '2' || opcao == '3' || opcao == '4' || opcao == '#'){ 
     switch(opcao){
     case '1':
     //Coloca a torre
@@ -391,7 +391,7 @@ while(vidaPlayer > 0 && continuar == 's'){
                             printMapa();
                             //bater no enemego
                             gotoxy(0, 12);
-                            printf("Vida atual do inimigo %d", inimigo->vida);
+                            printf("Enemy: %dHP", inimigo->vida);
 
                             for(int k = 0; k <= ultimaTorreColocada; k++ ) {
                                 if ((torre[k].x - inimigo->x) <= torre[k].alcance && (torre[k].y - inimigo->y) <= torre[k].alcance) {
@@ -433,10 +433,10 @@ while(vidaPlayer > 0 && continuar == 's'){
     //upgrade da torre peco perdao pq aqui eu ja parei de comentar tava maluco
         if(moneyPlayer > 0){
         char columnSel;
-        int rowSelNum,columnSelNum, torreMexendo;
+        int rowSelNum,columnSelNum, torreMexendo = 0;
         limparConsoleRestosMais();
         gotoxy(0, 12);
-        printf("Which position do you want to place the tower? (EX:A 1)         \n");
+        printf("What tower do you want to upgrade? (EX:A 1)         \n");
         scanf(" %c %d", &columnSel, &rowSelNum);
 
         //troca a letra pelo numero da coluna
@@ -451,6 +451,8 @@ while(vidaPlayer > 0 && continuar == 's'){
             case 'H': columnSelNum = 8; break;
             case 'I': columnSelNum = 9; break;
         }
+            torreMexendo = mapaTorres[rowSelNum][columnSelNum];
+            valorUpgrade = torre[torreMexendo].valorPagoTorre*2;
 
             //verifica se a coluna ta certa.
             if (columnSel !=  mapaI[0][1] && columnSel !=  mapaI[0][2] && columnSel !=  mapaI[0][3] && columnSel !=  mapaI[0][4] && columnSel !=  mapaI[0][5] && columnSel !=  mapaI[0][6] && columnSel !=  mapaI[0][7] && columnSel !=  mapaI[0][8] && columnSel !=  mapaI[0][9]){
@@ -483,17 +485,37 @@ while(vidaPlayer > 0 && continuar == 's'){
             }
             else{
                 // Upgrade da torre
-                
-                valorUpgrade = torre[torreMexendo].valorPagoTorre*2;
-                mapaTorres[rowSelNum][columnSelNum] = torreMexendo;
-                torre[torreMexendo].alcance = 2;
-                torre[torreMexendo].danoTorre = torre[torreMexendo].danoTorre*2;
-                mapaI[rowSelNum][columnSelNum] = 'T';
-                moneyPlayer = moneyPlayer - valorTorre;
+                char intOpcaoUpg = ' ';
                 limparConsoleRestosMais();
                 gotoxy(0, 13);
-                printf("Tower upgraded successfully. You now have %d money.", moneyPlayer);
-                delay(2000);
+                do {
+                printf("Upgrade price do you really want to continue? (s/n)");
+                intOpcaoUpg = getch();
+
+                    if(intOpcaoUpg == 's'){
+                        torre[torreMexendo].alcance = 2;
+                        torre[torreMexendo].danoTorre = torre[torreMexendo].danoTorre*2;
+                        mapaI[rowSelNum][columnSelNum] = 'T';
+                        moneyPlayer = moneyPlayer - valorTorre;
+                        limparConsoleRestosMais();
+                        gotoxy(0, 13);
+                        printf("Tower upgraded successfully. You now have %d money.", moneyPlayer);
+                        delay(2000);
+                        limparConsoleRestosMais();
+                    }
+                    else if (intOpcaoUpg == 'n'){
+                        limparConsoleRestosMais();
+                        gotoxy(0, 13);
+                        printf("Action cancelled successfully. You still have %d money.", moneyPlayer);
+                        delay(2000);
+                        limparConsoleRestosMais();
+                    }
+                    else{
+                        limparConsoleRestosMais();
+                        gotoxy(0, 13);
+                        printf("Invalid option.");
+                    }
+                } while ((intOpcaoUpg != 's') && (intOpcaoUpg != 'n'));
             }
         }
         else{
@@ -512,15 +534,18 @@ while(vidaPlayer > 0 && continuar == 's'){
         letreiroPrint();
         gotoxy(23, 19);
         printf("|                          Obrigado por jogar                          |");
+        gotoxy(23, 20);
         printf("|                      Sua pontuacao foi de %d                       ", nivelPlayer*moneyPlayer*1500); 
         gotoxy(94, 20);
         printf("|");
-        gotoxy(23, 21); 
         gotoxy(23, 21);
         printf("------------------------------------------------------------------------\n\n");
         getch();
         system("exit"); 
         break;
+    case '#':
+    //debug
+        moneyPlayer = moneyPlayer + 420420;
     }
     }
     
