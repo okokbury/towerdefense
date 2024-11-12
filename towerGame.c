@@ -134,42 +134,22 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
 }
 
     void limparConsoleRestosMais(){
-        gotoxy(0, 11);
+        for(int i = 11; i < 23; i++){
+        COORD coord;
+        coord.X = 0; // coluna
+        coord.Y = i; // linha
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
         printf("                                                                               \n");
-        gotoxy(0, 12);
-        printf("                                                                               \n");
-        gotoxy(0, 13);
-        printf("                                                                               \n");
-        gotoxy(0, 14);
-        printf("                                                                               \n");
-        gotoxy(0, 15);
-        printf("                                                                               \n");
-        gotoxy(0, 16);
-        printf("                                                                               \n");
-        gotoxy(0, 17);
-        printf("                                                                               \n");
-        gotoxy(0, 18);
-        printf("                                                                               \n");
-        gotoxy(0, 19);
-        printf("                                                                               \n");
-        gotoxy(0, 20);
-        printf("                                                                               \n");
-        gotoxy(0, 21);
-        printf("                                                                               \n");
-        gotoxy(0, 22);
-        printf("                                                                               \n");
-        gotoxy(0, 23);
-        printf("                                                                               \n");
+        }
     }
     void limparConsoleRestosMenos(){
-        gotoxy(0, 20);
+        for(int i = 19; i < 23; i++){
+        COORD coord;
+        coord.X = 0; // coluna
+        coord.Y = i; // linha
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
         printf("                                                                               \n");
-        gotoxy(0, 21);
-        printf("                                                                               \n");
-        gotoxy(0, 22);
-        printf("                                                                               \n");
-        gotoxy(0, 23);
-        printf("                                                                               \n");
+        }
     }
     //funcao pra colocar a msg em tal posicao win e linux
     void gotoxy(int x, int y) {
@@ -263,6 +243,7 @@ int danoInimigo, maxTorres, ultimaTorreColocada, numInimigos, waveProgress, numT
 int mapaTorres[9][9] = {0};
 char opcao;
 char continuar = 's';
+char intOpcaoUpg = ' ';
 
 PontoRota rota[TAM_MAX_ROTA];
 Inimigo inimigo[MAX_INIMIGOS];
@@ -705,9 +686,10 @@ while(vidaPlayer > 0 && continuar == 's'){
     break;
     case '4':
     //Sair do jogo
-    char intOpcaoUpg = ' ';
-    limparConsoleRestosMais();
+    
     do {
+        
+        limparConsoleRestosMais();
         gotoxy(0, 13);
         printf("Do you really want to quit? (s/n)");
         intOpcaoUpg = getch();
