@@ -210,6 +210,40 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
     printf("                       ------------------------------------------------------------------------\n\n");    
     }
 
+    void tutorialPrint() {
+    printf("TOWERDEFENSE - a game by VolumeCare\n");
+    printf("                                                                                                                 \n");
+    printf("YOUR BASE:                                                                                                       \n");
+    printf("                                                                                                                 \n");
+    printf("- YOUR BASE HAVE 10HP                                                                                            \n");
+    printf("- YOU HAVE TO DEFEND YOUR BASE AT ALL COST                                                                       \n");
+    printf("- DONT LET THE ENEMY GET TO IT                                                                                   \n");
+    printf("                                                                                                                 \n");
+    printf("TOWERS:                                                                                                          \n");
+    printf("                                                                                                                 \n");
+    printf("- YOU CAN ONLY PUT A TOWER IN A EMPTY SLOT MARKED BY THE \"/\"                                                   \n");
+    printf("- TOWER PRICE GETS HIGHER AFTER EACH WAVE                                                                        \n");
+    printf("- TOWERS START AT LVL 1 MARKED AS A \"t\" ON THE MAP, IT CAN GO TO LVL 2 \"T\", AND LVL 3 \"W\"                  \n");
+    printf("- THE UPGRADE PRICE DEPENDS ON THE PRICE PAID FOR THE TOWER, IF YOU PAID 25 COINS FOR THE TOWER AT ROUND 1,      \n");
+    printf("THE LVL 2 UPGRADE WILL COST 4X THE PRICE, 100 COINS, IF YOU WANT TO GO EVEN HIGHER, THE LVL 3 UPGRADE WILL COST  \n");
+    printf("3X THE PRICE PAID FOR THE LVL 2 UPGRADE = 300 (ALL PRICES ARE SHOWN WHEN REQUESTING AN UPGRADE)                  \n");
+    printf("                                                                                                                 \n");
+    printf("- LVL 1 TOWER \"t\", 3x3 ATTACK RANGE, 5DMG PER TICK                                                             \n");
+    printf("- LVL 2 TOWER \"T\", 5x5 ATTACK RANGE, 20DMG PER TICK                                                            \n");
+    printf("- LVL 3 TOWER \"W\", 7x7 ATTACK RANGE, 100DMG PER TICK                                                           \n");
+    printf("                                                                                                                 \n");
+    printf("ENEMIES:                                                                                                         \n");
+    printf("                                                                                                                 \n");
+    printf("- THE ENEMIES START SPAWNING AFTER YOU SELECT TO START THE WAVE                                                  \n");
+    printf("- ROUND 1 - 9: 1 ENEMY                                                                                           \n");
+    printf("- ROUND 10 - 19: 2 ENEMIES                                                                                       \n");
+    printf("- ROUND 20 - 29: 3 ENEMIES                                                                                       \n");
+    printf("- ROUND 30 - 39: 4 ENEMIES                                                                                       \n");
+    printf("- AFTER ROUND 40 EVERY ROUND WILL 5 ENEMIES                                                                      \n");
+    printf("- THE ENEMY LIFE WILL BE BASED ON HOW MANY WAVES YOU HAVE PASSED, CONSTANTLY GETTING HIGHER                      \n");
+    printf("\npress any key to continue");
+    }
+
     void printMapa(){
         for(int i=0;i<10;i++){
             printf("\n");
@@ -275,6 +309,9 @@ limparConsole();
 //printf("                       |                                                                      |\n");  
 //printf("                       ------------------------------------------------------------------------\n\n");
 letreiroPrint();
+getch();
+limparConsole();
+tutorialPrint();
 getch();
 limparConsole();
 //usa a funcao da rota pra gerar a rota, no towerdefense so gera 1 vez a rota.
