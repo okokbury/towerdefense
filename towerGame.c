@@ -608,7 +608,7 @@ while(vidaPlayer > 0 && continuar == 's'){
                             torre[torreMexendo].alcance = 3;
                             torre[torreMexendo].danoTorre = torre[torreMexendo].danoTorre*4;
                             mapaI[rowSelNum][columnSelNum] = 'T';
-                            moneyPlayer = moneyPlayer - valorTorre;
+                            moneyPlayer = moneyPlayer - valorUpgrade;
                             limparConsoleRestosMais();
                             gotoxy(0, 13);
                             printf("Tower upgraded successfully. You now have %f money.", moneyPlayer);
@@ -653,10 +653,10 @@ while(vidaPlayer > 0 && continuar == 's'){
                             torre[torreMexendo].alcance = 3;
                             torre[torreMexendo].danoTorre = torre[torreMexendo].danoTorre*5;
                             mapaI[rowSelNum][columnSelNum] = 'W';
-                            moneyPlayer = moneyPlayer - valorTorre;
+                            moneyPlayer = moneyPlayer - valorUpgrade;
                             limparConsoleRestosMais();
                             gotoxy(0, 13);
-                            printf("Tower upgraded successfully. You now have %f money.", moneyPlayer);
+                            printf("Tower upgraded successfully. You now have %.0f money.", moneyPlayer);
                             delay(2000);
                             limparConsoleRestosMais();
                             break;
@@ -664,7 +664,7 @@ while(vidaPlayer > 0 && continuar == 's'){
                         else if (intOpcaoUpg == 'n'){
                             limparConsoleRestosMais();
                             gotoxy(0, 13);
-                            printf("Action cancelled successfully. You still have %f money.", moneyPlayer);
+                            printf("Action cancelled successfully. You still have %.0f money.", moneyPlayer);
                             delay(2000);
                             limparConsoleRestosMais();
                             break;
@@ -702,7 +702,7 @@ while(vidaPlayer > 0 && continuar == 's'){
             gotoxy(23, 19);
             printf("|                          Obrigado por jogar                          |");
             gotoxy(23, 20);
-            printf("|                      Sua pontuacao foi de %0.f                       ", moneyPlayer*nivelPlayer);
+            printf("|                     Sua pontuacao foi de %0.f                       ", moneyPlayer*nivelPlayer);
             gotoxy(94, 20);
             printf("|");
             gotoxy(23, 21);
@@ -748,7 +748,7 @@ while(vidaPlayer > 0 && continuar == 's'){
         gotoxy(23, 19);
         printf("|                            Voce perdeu :(                            |\n");
         gotoxy(23, 20);
-        printf("|                      Sua pontuacao foi de %0.f                       ", moneyPlayer*nivelPlayer); 
+        printf("|                     Sua pontuacao foi de %0.f                       ", moneyPlayer*nivelPlayer); 
         gotoxy(94, 20);
         printf("|");
         gotoxy(23, 21);
