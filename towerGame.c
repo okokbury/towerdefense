@@ -8,6 +8,8 @@
 #define TAM_MAPA 10
 #define MAX_INIMIGOS 5
 #define TAM_MAX_ROTA 20
+#define MAX_TORRES 80
+
 char mapaI[TAM_MAPA][TAM_MAPA] = {
         {' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'},
         {'1', '/', '/', '/', '/', '/', '/', '/', '/', '/'},
@@ -33,6 +35,12 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
         int x;
         int y;
     } PontoRota;
+
+    typedef struct {
+        int x;
+        int y;
+        int danoTorre;
+    } Torre;
     
     //funcao de delay
     void delay(int milliseconds) {
@@ -135,29 +143,29 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
 
     //funcao pra mostrar a tela inicial, fiz em funcao so pra ficar mais organizado
     void letreiroPrint(){                                                                            
-printf("                                                                                               \n");  
-printf("                       ------------------------------------------------------------------------\n");  
-printf("                       |                                                                      |\n");  
-printf("                       |         |xxxxxxxxxxx| |xxxxxxx| |xxx| |xxx| |xxxxx| |xxxxxx|         |\n");  
-printf("                       |         |           | |       | |   |x|   | |     | |  xxxx|         |\n");  
-printf("                       |         |xxx|   |xxx| |  xxx  | |   | |   | | xxxx| |  |             |\n");  
-printf("                       |             |   |     |  x x  | |   | |   | |    |  |  |             |\n");  
-printf("                       |             |   |     |  xxx  | |         | | xxxx| |  |             |\n");  
-printf("                       |             |   |     |       | |         | |     | |  |             |\n");  
-printf("                       |             |xxx|     |xxxxxxx| |xxxxxxxxx| |xxxxx| |xx|             |\n");  
-printf("                       |                                                                      |\n");  
-printf("                       |    |xxxxx|  |xxxxxx| |xxxxxx| |xxxxxx| |xxxx|x| |xxxxxx| |xxxxxx|    |\n");  
-printf("                       |    |     || |      | |      | |      | |    | | |      | |      |    |\n");  
-printf("                       |    | xxx  | | xxxxx| | xxxxx| | xxxxx| |    | | |  xxxx| | xxxxx|    |\n");  
-printf("                       |    | x x  | |    |   |     |  |    |   | |  | | |      | |    |      |\n");  
-printf("                       |    | xxx  | | xxxxx| | xxxx|  | xxxxx| | |    | |xxxxx | | xxxxx|    |\n");  
-printf("                       |    |      | |      | | |      |      | | |    | |      | |      |    |\n");  
-printf("                       |    |     || |      | | |      |      | | |    | |      | |      |    |\n");  
-printf("                       |    |XXXXX|  |XXXXXX| |X|      |XXXXXX| |X|XXXX| |XXXXXX| |XXXXXX|    |\n");  
-printf("                       |                       Press any key to start!                        |\n");  
-printf("                       |                                                                      |\n");  
-printf("                       ------------------------------------------------------------------------\n\n");    
-}
+    printf("                                                                                               \n");  
+    printf("                       ------------------------------------------------------------------------\n");  
+    printf("                       |                                                                      |\n");  
+    printf("                       |         |xxxxxxxxxxx| |xxxxxxx| |xxx| |xxx| |xxxxx| |xxxxxx|         |\n");  
+    printf("                       |         |           | |       | |   |x|   | |     | |  xxxx|         |\n");  
+    printf("                       |         |xxx|   |xxx| |  xxx  | |   | |   | | xxxx| |  |             |\n");  
+    printf("                       |             |   |     |  x x  | |   | |   | |    |  |  |             |\n");  
+    printf("                       |             |   |     |  xxx  | |         | | xxxx| |  |             |\n");  
+    printf("                       |             |   |     |       | |         | |     | |  |             |\n");  
+    printf("                       |             |xxx|     |xxxxxxx| |xxxxxxxxx| |xxxxx| |xx|             |\n");  
+    printf("                       |                                                                      |\n");  
+    printf("                       |    |xxxxx|  |xxxxxx| |xxxxxx| |xxxxxx| |xxxx|x| |xxxxxx| |xxxxxx|    |\n");  
+    printf("                       |    |     || |      | |      | |      | |    | | |      | |      |    |\n");  
+    printf("                       |    | xxx  | | xxxxx| | xxxxx| | xxxxx| |    | | |  xxxx| | xxxxx|    |\n");  
+    printf("                       |    | x x  | |    |   |     |  |    |   | |  | | |      | |    |      |\n");  
+    printf("                       |    | xxx  | | xxxxx| | xxxx|  | xxxxx| | |    | |xxxxx | | xxxxx|    |\n");  
+    printf("                       |    |      | |      | | |      |      | | |    | |      | |      |    |\n");  
+    printf("                       |    |     || |      | | |      |      | | |    | |      | |      |    |\n");  
+    printf("                       |    |XXXXX|  |XXXXXX| |X|      |XXXXXX| |X|XXXX| |XXXXXX| |XXXXXX|    |\n");  
+    printf("                       |                       Press any key to start!                        |\n");  
+    printf("                       |                                                                      |\n");  
+    printf("                       ------------------------------------------------------------------------\n\n");    
+    }
 
     void printMapa(){
         for(int i=0;i<10;i++){
@@ -173,11 +181,13 @@ int main(){
 
 //Variaveis
 int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre, tamanhoRota, ganhoRound;
-int vidaRound, danoInimigo;
+int vidaRound, danoInimigo, maxTorres;
 char opcao;
 char continuar = 's';
+
 PontoRota rota[TAM_MAX_ROTA];
 Inimigo inimigo[MAX_INIMIGOS];
+Torre torre[MAX_TORRES];
 
 //definicoes padrao:
 vidaPlayer = 10;
@@ -223,7 +233,7 @@ gerarRota(rota, &tamanhoRota);
 desenharRota(mapaI, rota, tamanhoRota);
 
 //inicio das funcoes do jogo/inicio do loop
-while(vidaPlayer > 0 || continuar == 's'){
+while(vidaPlayer > 0 && continuar == 's'){
     
     //imprimindo o mapa
     gotoxy(0, 0);
@@ -306,9 +316,9 @@ while(vidaPlayer > 0 || continuar == 's'){
         if(nivelPlayer == 1) vidaRound = 5;
         else vidaRound = vidaRound * 1.25;
 
-        inimigo->vida = vidaRound;  // Set vida for the enemy
-        inimigo->x = 1;  // Set initial position
-        inimigo->y = 1;  // Set initial position
+        inimigo->vida = vidaRound;
+        inimigo->x = 1;
+        inimigo->y = 1;
         //dano do inimigo
         danoInimigo = inimigo->vida;
         
@@ -318,6 +328,7 @@ while(vidaPlayer > 0 || continuar == 's'){
                 //fazer enemego mexer
                 for (int i = 1; i < TAM_MAPA; i++) {
                     for(int j = 1; j < TAM_MAPA; j++){
+                        //transformar o ultimo caractere andado em espaco vazio dnv
                         if (j>=1 && i>=1 && mapaI[inimigo->x][inimigo->y] == 'N') {
                             mapaI[inimigo->x][inimigo->y] = ' ';
                         }
@@ -325,7 +336,9 @@ while(vidaPlayer > 0 || continuar == 's'){
                             mapaI[i][j] = 'N';
                             inimigo->x = i;
                             inimigo->y = j;
-                            //transformar o ultimo caractere andado em espaco vazio dnv
+                            
+                            
+
                             limparConsole();
                             printMapa();
                             delay(333);
@@ -333,9 +346,9 @@ while(vidaPlayer > 0 || continuar == 's'){
                     }
             if(inimigo->x == 9 && inimigo->y == 9) {
                 mapaI[inimigo->x][inimigo->y] = 'B';
-                gotoxy(0, 20);
+                gotoxy(0, 21);
                 vidaPlayer = vidaPlayer - danoInimigo;
-                printf("O inimigo atingiu a sua base, voce recebeu %d de dano!", danoInimigo);
+                printf("The enemy hit your base, you received %d points of damage!", danoInimigo);
                 inimigo->vida = 0;
             }
         }
@@ -347,7 +360,7 @@ while(vidaPlayer > 0 || continuar == 's'){
         valorTorre = 40*nivelPlayer;
         ganhoRound = 50*(nivelPlayer*0.5);
         gotoxy(0, 20);
-        printf("Valor ganho no round %d", ganhoRound);
+        printf("Money earned in this wave %d", ganhoRound);
         moneyPlayer = moneyPlayer + ganhoRound;
         nivelPlayer++;
     break;
@@ -374,28 +387,29 @@ while(vidaPlayer > 0 || continuar == 's'){
         break;
     }
     }
-    if(vidaPlayer == 0){
-        limparConsole();
-        //Letreiro de saida
-        gotoxy(0,0);
-        letreiroPrint();
-        gotoxy(23, 19);
-        printf("|                            Você perdeu :(                            |\n");
-        gotoxy(23, 20);
-        printf("|                        Sua pontuacao foi de %d                       |", nivelPlayer*moneyPlayer*1500); 
-        gotoxy(23, 21);
-        printf("|                          Obrigado por jogar                          |");
-        gotoxy(23, 22);
-        printf("------------------------------------------------------------------------\n\n");
-        getch();
-        system("exit"); 
-        break;
-    }
+    
     //informa q ele apertou o botao errado ou de nenhuma funcao
     else {
         limparConsole();
         gotoxy(0, 20);
         printf("Invalid option.");
+        printf("%c", opcao);
     }
 }
-}
+        limparConsole();
+        //Letreiro de saida
+        gotoxy(0,0);
+        letreiroPrint();
+        gotoxy(23, 19);
+        printf("|                            Voce perdeu :(                            |\n");
+        gotoxy(23, 20);
+        printf("|                      Sua pontuacao foi de %d                       ", nivelPlayer*moneyPlayer*1500); 
+        gotoxy(94, 20);
+        printf("|");
+        gotoxy(23, 21);
+        printf("|                          Obrigado por jogar                          |");
+        gotoxy(23, 22);
+        printf("------------------------------------------------------------------------\n\n");
+        getch();
+        system("exit");
+ }
