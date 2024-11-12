@@ -27,12 +27,22 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
         int y;
         int vida;
     } Inimigo;
-    //struct pra criacao do mapa
+
+    //struct pra criacao da rota do inimigo
     typedef struct {
         int x;
         int y;
     } PontoRota;
     
+    //funcao de delay
+    void delay(int milliseconds) {
+    struct timespec req;
+    req.tv_sec = milliseconds / 1000;  // segundos
+    req.tv_nsec = (milliseconds % 1000) * 1000000;  // nanosegundos
+
+    nanosleep(&req, NULL);  // Chama o nanosleep
+}
+   
     //funcao pra fazer a rota entre a primeira casa ate a base
     void gerarRota(PontoRota* rota, int* tamanhoRota) {
         int x = 1, y = 1;
@@ -84,10 +94,17 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
             }
         }
     }
-
-    //funcao pra mexer o bicho
-    void moverInimigo(Inimigo* inimigo) {
+    void desenharInimigo(char mapaI[TAM_MAPA][TAM_MAPA], PontoRota* rota, int tamanhoRota) {
+        for (int i = 0; i < tamanhoRota; i++) {
+            int x = rota[i].x;
+            int y = rota[i].y;
+            if (mapaI[x][y] == '/') { //marcando o caminho q o inimigo vai passar
+                mapaI[x][y] = ' ';
+            }
+        }
     }
+
+    //fazer a funcao p verificar se o inimigo esta na rota e bater ai acrescentar no loop la da fita
 
     //checar se ta livre o caminho
     int posicaoLivre(int x, int y){
@@ -142,8 +159,6 @@ printf("                       |                                                
 printf("                       ------------------------------------------------------------------------\n\n");    
 }
 
-
-
     void printMapa(){
         for(int i=0;i<10;i++){
             printf("\n");
@@ -158,16 +173,19 @@ int main(){
 
 //Variaveis
 int vidaPlayer, moneyPlayer, nivelPlayer, valorTorre, tamanhoRota, ganhoRound;
+int vidaRound, danoInimigo;
 char opcao;
 char continuar = 's';
 PontoRota rota[TAM_MAX_ROTA];
+Inimigo inimigo[MAX_INIMIGOS];
 
 //definicoes padrao:
-vidaPlayer = 100;
+vidaPlayer = 10;
 moneyPlayer = 50;
 nivelPlayer = 1;
 valorTorre = 25;
 ganhoRound = 50;
+vidaRound = 5;
 
 
 //Deixa o console limpo pra iniciar
@@ -205,7 +223,7 @@ gerarRota(rota, &tamanhoRota);
 desenharRota(mapaI, rota, tamanhoRota);
 
 //inicio das funcoes do jogo/inicio do loop
-while(continuar == 's'){
+while(vidaPlayer > 0 || continuar == 's'){
     
     //imprimindo o mapa
     gotoxy(0, 0);
@@ -213,19 +231,18 @@ while(continuar == 's'){
     
     printf("\n\nBase HP: %d | Money: %d | Round: %d", vidaPlayer, moneyPlayer, nivelPlayer);
     printf("\nTower price: %d", valorTorre);
-    printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Quit.\n");
+    printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Upgrade a tower. \n4 - Quit.\n");
     opcao = getch();
 
 
     //ve se o usuario apertou o botao de opcao certo
-    if(opcao == '1' || opcao == '2' || opcao == '3'){ 
+    if(opcao == '1' || opcao == '2' || opcao == '3' || opcao == '4'){ 
     switch(opcao){
     case '1':
     //Coloca a torre
 
-
         //ve se o usuario tem dinheiro p colocar a torre
-        if (moneyPlayer >= valorTorre){
+    if (moneyPlayer >= valorTorre){
             char columnSel;
             int rowSelNum,columnSelNum;
             gotoxy(0, 20);
@@ -285,34 +302,44 @@ while(continuar == 's'){
 
     case '2':
     //Comeca a wave, aqui vai demorar
-        int vidaRound, danoInimigo;
-        Inimigo inimigo;
-        inimigo.vida = vidaRound;
         //scaling de vida
         if(nivelPlayer == 1) vidaRound = 5;
-        else vidaRound = vidaRound*1.25;
-        inimigo.x = 1;
-        inimigo.y = 1;
-        //dano do inimigo
-        
+        else vidaRound = vidaRound * 1.25;
 
-        while(inimigo.vida > 0){
-            while(inimigo.x != 9 && inimigo.y != 9){
+        inimigo->vida = vidaRound;  // Set vida for the enemy
+        inimigo->x = 1;  // Set initial position
+        inimigo->y = 1;  // Set initial position
+        //dano do inimigo
+        danoInimigo = inimigo->vida;
+        
+        //faz o inimigo mecher e vai ter
+        while(inimigo->vida  > 0){
+            while(inimigo->x < 9 && inimigo->y < 9){
                 //fazer enemego mexer
-                for (int i = 0; i < tamanhoRota; i++) {
-                    int x = rota[i].x;
-                    int y = rota[i].y;
-                    if (mapaI[x][y] == ' ') { //marcando o caminho q o inimigo vai passar
-                        mapaI[x][y] = 'B';
-                        inimigo.x = x;
-                        inimigo.y = y;
+                for (int i = 1; i < TAM_MAPA; i++) {
+                    for(int j = 1; j < TAM_MAPA; j++){
+                        if (j>=1 && i>=1 && mapaI[inimigo->x][inimigo->y] == 'N') {
+                            mapaI[inimigo->x][inimigo->y] = ' ';
+                        }
+                        if (mapaI[i][j] == ' ' || mapaI[i][j] == 'B') { //marcando o caminho q o inimigo vai passar
+                            mapaI[i][j] = 'N';
+                            inimigo->x = i;
+                            inimigo->y = j;
+                            //transformar o ultimo caractere andado em espaco vazio dnv
+                            limparConsole();
+                            printMapa();
+                            delay(333);
+                        }
                     }
-                }
-            }
-            if(inimigo.x == 9 && inimigo.y == 9) {
+            if(inimigo->x == 9 && inimigo->y == 9) {
+                mapaI[inimigo->x][inimigo->y] = 'B';
                 gotoxy(0, 20);
+                vidaPlayer = vidaPlayer - danoInimigo;
                 printf("O inimigo atingiu a sua base, voce recebeu %d de dano!", danoInimigo);
+                inimigo->vida = 0;
             }
+        }
+        }
         }
 
 
@@ -326,6 +353,7 @@ while(continuar == 's'){
     break;
     case '3':
     //upgrade da torre
+    printf("Upgrade sendo feito... ");
     break;
     case '4':
     //Sair do jogo
@@ -345,8 +373,24 @@ while(continuar == 's'){
         system("exit"); 
         break;
     }
-    } 
-
+    }
+    if(vidaPlayer == 0){
+        limparConsole();
+        //Letreiro de saida
+        gotoxy(0,0);
+        letreiroPrint();
+        gotoxy(23, 19);
+        printf("|                            Você perdeu :(                            |\n");
+        gotoxy(23, 20);
+        printf("|                        Sua pontuacao foi de %d                       |", nivelPlayer*moneyPlayer*1500); 
+        gotoxy(23, 21);
+        printf("|                          Obrigado por jogar                          |");
+        gotoxy(23, 22);
+        printf("------------------------------------------------------------------------\n\n");
+        getch();
+        system("exit"); 
+        break;
+    }
     //informa q ele apertou o botao errado ou de nenhuma funcao
     else {
         limparConsole();
