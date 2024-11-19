@@ -11,6 +11,8 @@
 #define MAX_INIMIGOS 5
 #define TAM_MAX_ROTA 20
 #define MAX_TORRES 80
+#define MAX_PLAYER 10
+#define NAME_LENGHT 30
 
 char mapaI[TAM_MAPA][TAM_MAPA] = {
         {' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'},
@@ -46,7 +48,85 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
         int valorPagoTorre;
         int alvoAtual;
     } Torre;
-    
+
+    typedef struct {
+    char name[NAME_LENGHT];
+    int score;
+    } Player;
+
+    int load_leaderboard(Player players[MAX_PLAYER], int max_players, const char *filename) {
+        FILE *file = fopen(filename, "r");
+            if (file == NULL) {
+                return 0;
+        }
+
+        int count = 0;
+            while (fscanf(file, "%s - %d", players[count].name, &players[count].score) == 2 && count < max_players) {
+                count++;
+        }
+
+        fclose(file);
+        return count;
+    }
+
+    void save_leaderboard(Player players[MAX_PLAYER], int count, const char *filename) {
+        FILE *file = fopen(filename, "w");
+        if (file == NULL) {
+            printf("Error: Could not save leaderboard.\n");
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            fprintf(file, "%s %d\n", players[i].name, players[i].score);
+        }
+
+        fclose(file);
+    }
+
+    void add_score(Player players[MAX_PLAYER], int *count, const char *name, int score) {
+        if (*count < MAX_PLAYER){
+            strcpy(players[*count].name, name);
+            players[*count].score = score;
+            (*count)++;
+        } else {
+            if (score > players[*count - 1].score) {
+            strcpy(players[*count - 1].name, name);
+            players[*count -1].score = score;
+            }
+        }
+
+        for (int i = 0; i < *count - 1; i++) {
+            for (int j = i + 1; j < *count; j++) {
+            if (players[i].score < players[j].score) {
+                Player temp = players[i];
+                players[i] = players[j];
+                players[j] = temp;
+            }
+            }
+        }
+    }
+
+    void display_leaderboard(const Player players[], int count) {
+        printf("Leaderboard:               \n");
+        printf("---------------------------\n");
+        for (int i = 0; i < count; i++) {
+            printf("%d. %s - %d\n", i + 1, players[i].name, players[i].score);
+        }
+        printf("---------------------------\n");
+    }
+
+    void gotoxy(int x, int y) {
+    #ifdef _WIN32
+        COORD coord;
+        coord.X = x; // coluna
+        coord.Y = y; // linha
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+    #else
+    //foi assim q eu vi q tinha q ser no linux n sei se vai funcionar, testa no seu pc
+        printf("\033[%d;%dH", y, x);
+    #endif
+    }
+
     //funcao de delay
     void delay(int milliseconds) {
     struct timespec req;
@@ -54,7 +134,7 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
     req.tv_nsec = (milliseconds % 1000) * 1000000;
 
     nanosleep(&req, NULL);
-}
+    }
    
     //funcao pra fazer a rota entre a primeira casa ate a base
     void gerarRota(PontoRota* rota, int* tamanhoRota) {
@@ -172,17 +252,7 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
         printf("                                                                               \n");
     }
     //funcao pra colocar a msg em tal posicao win e linux
-    void gotoxy(int x, int y) {
-    #ifdef _WIN32
-        COORD coord;
-        coord.X = x; // coluna
-        coord.Y = y; // linha
-        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-    #else
-    //foi assim q eu vi q tinha q ser no linux n sei se vai funcionar, testa no seu pc
-        printf("\033[%d;%dH", y, x);
-    #endif
-}
+    
 
     //funcao pra mostrar a tela inicial, fiz em funcao so pra ficar mais organizado
     void letreiroPrint(){                                                                            
@@ -256,17 +326,20 @@ char mapaI[TAM_MAPA][TAM_MAPA] = {
 
 int main(){
 
-//Variaveis
-int vidaPlayer, nivelPlayer, valorTorre, valorPagoTorre, valorUpgrade, tamanhoRota, ganhoRound, perdeu, ganhou;
-float moneyPlayer, vidaRound, vidaDoInimigo[5]={0};
+//Variaveis e ponteirox
+PontoRota rota[TAM_MAX_ROTA];
+Inimigo inimigo[MAX_INIMIGOS];
+Torre torre[MAX_TORRES];
+Player players[MAX_PLAYER];
+
+int vidaPlayer, nivelPlayer, valorPagoTorre, valorUpgrade, tamanhoRota, ganhoRound, perdeu, ganhou;
+float moneyPlayer, vidaRound, valorTorre, vidaDoInimigo[5]={0};
 int danoInimigo, maxTorres, ultimaTorreColocada, numInimigos, waveProgress, numTotalInimigosWave;
 int mapaTorres[9][9] = {0};
 char opcao;
 char continuar = 's';
-
-PontoRota rota[TAM_MAX_ROTA];
-Inimigo inimigo[MAX_INIMIGOS];
-Torre torre[MAX_TORRES];
+char nomeJogador[20];
+int count = load_leaderboard(players, MAX_PLAYER, "leaderboard.txt");
 
 //definicoes padrao:
 vidaPlayer = 10;
@@ -326,7 +399,7 @@ while(vidaPlayer > 0 && continuar == 's'){
     printMapa();
     
     printf("\n\nBase HP: %d | Money: %0.f | Round: %d", vidaPlayer, moneyPlayer, nivelPlayer);
-    printf("\nTower price: %d", valorTorre);
+    printf("\nTower price: %0.2f", valorTorre);
     printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Upgrade a tower. \n4 - Quit.\n\n");
     opcao = getch();
 
@@ -437,23 +510,23 @@ while(vidaPlayer > 0 && continuar == 's'){
             numInimigos = 1;
         }
         if(nivelPlayer >= 2){
-            vidaRound = vidaRound * 1.10;
+            vidaRound = vidaRound * 1.05;
             numInimigos = 1;
         }
         if (nivelPlayer >= 10){
-            vidaRound = vidaRound * 1.10;
+            vidaRound = vidaRound * 1.08;
             numInimigos = 2;
         }
         if (nivelPlayer >= 20){
-            vidaRound = vidaRound * 1.15;
+            vidaRound = vidaRound * 1.12;
             numInimigos = 3;
         }
         if (nivelPlayer >= 30){
-            vidaRound = vidaRound * 1.20;
+            vidaRound = vidaRound * 1.15;
             numInimigos = 4;
         }
         if (nivelPlayer >= 40){
-            vidaRound = vidaRound * 1.25;
+            vidaRound = vidaRound * 1.20;
             numInimigos = 5;
         }
         
@@ -510,13 +583,16 @@ while(vidaPlayer > 0 && continuar == 's'){
                     vidaDoInimigo[inimigosVzs] = inimigo[inimigosVzs].vida;
 
                     if(inimigo[inimigosVzs].x == 9 && inimigo[inimigosVzs].y == 9) {
-                    mapaI[inimigo[inimigosVzs].x][inimigo[inimigosVzs].y] = 'B';
                     vidaPlayer = vidaPlayer - vidaDoInimigo[inimigosVzs];
-                    numInimigos--;
-                    if(vidaPlayer <= 0) perdeu = perdeu + 1;
+                    if(vidaPlayer <= 0){
+                        perdeu = 1;
+                        waveProgress = 100;
+                    }
                     gotoxy(0, 20);
                     printf("The enemy hit your base, you received %d points of damage!", inimigo[inimigosVzs].vida);
                     inimigo[inimigosVzs].vida = 0;
+                    numInimigos--;
+                    mapaI[inimigo[inimigosVzs].x][inimigo[inimigosVzs].y] = 'B';
                 }
                     limparConsole();
                     printMapa();
@@ -545,6 +621,13 @@ while(vidaPlayer > 0 && continuar == 's'){
         printf("\nMoney earned in this wave: %d", ganhoRound);
         moneyPlayer += ganhoRound;
         nivelPlayer = nivelPlayer + 1;
+
+        for(int i = 0; i < numInimigos; i++) {
+        vidaDoInimigo[i] = 0;
+        inimigo[i].vida = vidaRound;
+        inimigo[i].x = 1;
+        inimigo[i].y = 1;
+        }
     } 
     break;
     case '3':
@@ -627,10 +710,10 @@ while(vidaPlayer > 0 && continuar == 's'){
                             torre[torreMexendo].alcance = 3;
                             torre[torreMexendo].danoTorre = torre[torreMexendo].danoTorre*4;
                             mapaI[rowSelNum][columnSelNum] = 'T';
-                            moneyPlayer = moneyPlayer - valorTorre;
+                            moneyPlayer -= valorUpgrade;
                             limparConsoleRestosMais();
                             gotoxy(0, 13);
-                            printf("Tower upgraded successfully. You now have %f money.", moneyPlayer);
+                            printf("Tower upgraded successfully. You now have %.0f money.", moneyPlayer);
                             delay(2000);
                             limparConsoleRestosMais();
                             break;
@@ -638,7 +721,7 @@ while(vidaPlayer > 0 && continuar == 's'){
                         else if (intOpcaoUpg == 'n'){
                             limparConsoleRestosMais();
                             gotoxy(0, 13);
-                            printf("Action cancelled successfully. You still have %f money.", moneyPlayer);
+                            printf("Action cancelled successfully. You still have %.0f money.", moneyPlayer);
                             delay(2000);
                             limparConsoleRestosMais();
                             break;
@@ -672,10 +755,10 @@ while(vidaPlayer > 0 && continuar == 's'){
                             torre[torreMexendo].alcance = 3;
                             torre[torreMexendo].danoTorre = torre[torreMexendo].danoTorre*5;
                             mapaI[rowSelNum][columnSelNum] = 'W';
-                            moneyPlayer = moneyPlayer - valorTorre;
+                            moneyPlayer -= valorUpgrade;
                             limparConsoleRestosMais();
                             gotoxy(0, 13);
-                            printf("Tower upgraded successfully. You now have %f money.", moneyPlayer);
+                            printf("Tower upgraded successfully. You now have %.0f money.", moneyPlayer);
                             delay(2000);
                             limparConsoleRestosMais();
                             break;
@@ -683,7 +766,7 @@ while(vidaPlayer > 0 && continuar == 's'){
                         else if (intOpcaoUpg == 'n'){
                             limparConsoleRestosMais();
                             gotoxy(0, 13);
-                            printf("Action cancelled successfully. You still have %f money.", moneyPlayer);
+                            printf("Action cancelled successfully. You still have %.0f money.", moneyPlayer);
                             delay(2000);
                             limparConsoleRestosMais();
                             break;
@@ -725,6 +808,15 @@ while(vidaPlayer > 0 && continuar == 's'){
             printf("|");
             gotoxy(23, 21);
             printf("------------------------------------------------------------------------\n\n");
+            printf("Digite o seu nickname (maximo 20 caracteres):  \n");
+            fgets(nomeJogador, sizeof(nomeJogador), stdin);
+            gotoxy(0, 24);
+            printf("                                                                                \n");
+            printf("                                                                                ");
+            gotoxy(23, 24);
+            add_score(players, &count, nomeJogador, moneyPlayer*nivelPlayer);
+            display_leaderboard(players, count);
+            save_leaderboard(players, count, "leaderboard.txt");
             getch();
             system("exit"); 
         }
@@ -773,7 +865,16 @@ while(vidaPlayer > 0 && continuar == 's'){
         printf("|                          Obrigado por jogar                          |");
         gotoxy(23, 22);
         printf("------------------------------------------------------------------------\n\n");
-        getch();
-        system("exit");
+        printf("Digite o seu nickname (maximo 20 caracteres):  \n");
+            fgets(nomeJogador, sizeof(nomeJogador), stdin);
+            gotoxy(0, 24);
+            printf("                                                                                \n");
+            printf("                                                                                ");
+            gotoxy(23, 24);
+            add_score(players, &count, nomeJogador, moneyPlayer*nivelPlayer);
+            display_leaderboard(players, count);
+            save_leaderboard(players, count, "leaderboard.txt");
+            getch();
+            system("exit"); 
         }
 }
