@@ -502,6 +502,7 @@ while(vidaPlayer > 0 && continuar == 's'){
 
     case '2':
     //Comeca a wave, aqui vai demorar
+    //eu acho que esse codigo de inimigo ta quebrado e com memory leak, mas ta funcionando ate o 30 pelo menos kkkkk
         waveProgress = 0;
 
         while(waveProgress < 100){
