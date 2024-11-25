@@ -339,6 +339,7 @@ int mapaTorres[9][9] = {0};
 char opcao;
 char continuar = 's';
 char nomeJogador[20];
+char intOpcaoUpg = ' ';
 int count = load_leaderboard(players, MAX_PLAYER, "leaderboard.txt");
 
 //definicoes padrao:
@@ -402,6 +403,7 @@ while(vidaPlayer > 0 && continuar == 's'){
     printf("\nTower price: %0.2f", valorTorre);
     printf("\n\nWhat will you do next? \n1 - Place tower. \n2 - Start the wave. \n3 - Upgrade a tower. \n4 - Quit.\n\n");
     opcao = getch();
+    fflush(stdin);
 
 
     //ve se o usuario apertou o botao de opcao certo
@@ -418,6 +420,7 @@ while(vidaPlayer > 0 && continuar == 's'){
             gotoxy(0, 12);
             printf("Which position do you want to place the tower? (EX:A 1)         \n");
             scanf(" %c %d", &columnSel, &rowSelNum);
+            fflush(stdin);
 
             switch(columnSel){
                 case 'a': columnSel = 'A'; break;
@@ -640,6 +643,7 @@ while(vidaPlayer > 0 && continuar == 's'){
         gotoxy(0, 12);
         printf("What tower do you want to upgrade? (EX:A 1)         \n");
         scanf(" %c %d", &columnSel, &rowSelNum);
+        fflush(stdin);
 
         switch(columnSel){
             case 'a': columnSel = 'A'; break;
@@ -706,6 +710,7 @@ while(vidaPlayer > 0 && continuar == 's'){
                     do {
                     printf("Upgrade price: %d, do you really want to continue? *Upgrade LVL 2* (s/n)", valorUpgrade);
                     intOpcaoUpg = getch();
+                    fflush(stdin);
 
                         if(intOpcaoUpg == 's'){
                             torre[torreMexendo].alcance = 3;
@@ -751,6 +756,7 @@ while(vidaPlayer > 0 && continuar == 's'){
                     do {
                     printf("Upgrade price: %d, do you really want to continue? *Upgrade LVL 3* (s/n)", valorUpgrade);
                     intOpcaoUpg = getch();
+                    fflush(stdin);
 
                         if(intOpcaoUpg == 's'){
                             torre[torreMexendo].alcance = 3;
@@ -789,12 +795,13 @@ while(vidaPlayer > 0 && continuar == 's'){
     break;
     case '4':
     //Sair do jogo
-    char intOpcaoUpg = ' ';
+    
     limparConsoleRestosMais();
     do {
         gotoxy(0, 13);
         printf("Do you really want to quit? (s/n)");
         intOpcaoUpg = getch();
+        fflush(stdin);
         if(intOpcaoUpg == 's'){
             continuar = 'n';
             limparConsole();
